@@ -382,6 +382,12 @@ impl Sidebar {
                                 buffer::Internal::ChannelDiscovery(None).into(),
                             ),
                         ),
+                        Menu::Scripts => context_button(
+                            text("Scripts"),
+                            None,
+                            icon::config(),
+                            Message::Replace(buffer::Internal::Scripts.into()),
+                        ),
                         Menu::Logs => context_button(
                             text("Logs")
                                 .style(if logs_has_unread {
@@ -788,6 +794,7 @@ enum Menu {
     ThemeEditor,
     Highlights,
     ChannelDiscovery,
+    Scripts,
     Logs,
     FileTransfers,
     Version,
@@ -842,6 +849,7 @@ impl Menu {
         }
 
         list.extend([
+            Self::Scripts,
             Self::OpenConfigFile,
             Self::RefreshConfig,
             Self::ThemeEditor,
@@ -1458,6 +1466,9 @@ fn internal_buffer_button<'a>(
         }
         buffer::Internal::FileTransfers => {
             (show_icon.then_some(icon::file_transfer()), None)
+        }
+        buffer::Internal::Scripts => {
+            (show_icon.then_some(icon::config()), None)
         }
         buffer::Internal::Highlights => {
             let badge = if has_unread

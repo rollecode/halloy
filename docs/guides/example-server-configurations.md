@@ -28,7 +28,10 @@ nickname = "registered-user" # your name on the server
 channels = ["#registered-users-clubhouse"] # channel(s) joined on launch
 
 sasl.plain.username = "registered-user" # name used for authentication; often the same as nickname
-sasl.plain.password_file = "super-secret-password" # password used for authentication
+sasl.plain.password_file = "/path/to/super-secret-password-file" # file containing password used for authentication
+```
+
+## [IRCCloud](https://www.irccloud.com/)
 ```
 
 ## [OFTC](https://oftc.net/)

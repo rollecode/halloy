@@ -45,7 +45,7 @@ Read `nick_password` from the file at the given path.[^1] [^2]
 # Default: not set
 
 [servers.<name>]
-nick_password_file = ""
+nick_password_file = "/path/to/nick-password-file"
 ```
 
 ## `nick_password_file_first_line_only`
@@ -188,7 +188,7 @@ Read password from the file at the given path.[^1] [^2]
 # Default: not set
 
 [servers.<name>]
-password_file = ""
+password_file = "/path/to/password-file"
 ```
 
 ## `password_file_first_line_only`
@@ -748,7 +748,7 @@ Read `password` from the file at the given path.[^1] [^2]
 # Default: not set
 
 [servers.<name>.sasl.plain]
-password_file = ""
+password_file = "/path/to/password-file"
 ```
 
 ### `password_file_first_line_only`
@@ -924,7 +924,7 @@ Read `password` from the file at the given path.[^1] [^2]
 # Default: not set
 
 [servers.<name>.filehost.credentials.plain]
-password_file = ""
+password_file = "/path/to/password-file"
 ```
 
 ##### `password_file_first_line_only`

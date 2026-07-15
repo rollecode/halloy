@@ -24,7 +24,7 @@ Ergo supports filehost natively via `additional-isupport`. Add the following to 
 ```yaml
 server:
   additional-isupport:
-    "soju.im/filehost": "https://your-filehost-url/upload"
+    "soju.im/FILEHOST": "https://your-filehost-url/upload"
 ```
 
 ### soju

@@ -30,6 +30,8 @@ Following notifications are available:
 | `reconnected`           | Triggered when a server reconnects                   | N/A          |
 | `reaction`              | Triggered when another user reacts to your message   | Message text |
 
+::: info
+
 `channel` is an array of tables, with each entry a notification for a single
 channel. For example, the following shows a toast notification for every
 message in `#halloy`:
@@ -37,7 +39,12 @@ message in `#halloy`:
 ```toml
 [notifications.channel."#halloy"]
 show_toast = true
+# these two options will restrict the notifications to a server named "Libera"
+exclude = "*"
+include = { servers = ["Libera"] }
 ```
+
+:::
 
 ## Built-in Sounds
 

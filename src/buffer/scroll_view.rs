@@ -34,7 +34,7 @@ const SCROLL_TO_TIMEOUT: Duration = Duration::from_millis(200);
 /// Total horizontal gap between the nick column and the message content when
 /// nicknames are right-aligned; the continuous separator line sits centered in
 /// it with `NICK_MESSAGE_LINE_MARGIN` on each side.
-pub const NICK_MESSAGE_LINE_MARGIN: f32 = 10.0;
+pub const NICK_MESSAGE_LINE_MARGIN: f32 = 12.0;
 pub const NICK_MESSAGE_GAP: f32 = NICK_MESSAGE_LINE_MARGIN * 2.0 + 1.0;
 /// Pages of off-screen messages to keep rendered above and below the viewport
 const BUFFER_PAGES: usize = 3;

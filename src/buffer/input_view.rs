@@ -533,7 +533,7 @@ pub fn view<'a>(
 
     let content = column![rule::horizontal(1), input_column]
         .spacing(4)
-        .padding(padding::top(4));
+        .padding(padding::top(config.buffer.line_spacing as f32));
 
     if config.tooltips.show_for_autocomplete() {
         let overlay = || -> Element<'a, Message> {

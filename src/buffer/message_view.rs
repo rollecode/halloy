@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use chrono::{DateTime, TimeDelta, Utc};
 use data::buffer::RightAlignmentWidths;
 use data::config::buffer::nickname::ShownStatus;
-use data::config::buffer::{CondensationIcon, Dimmed};
+use data::config::buffer::{CondensationIcon, Dimmed, ServerMessageMarker};
 use data::config::preview::HideUrlCondition;
 use data::isupport::{CaseMap, PrefixMap};
 use data::preview::{self, Previews};
@@ -179,7 +179,7 @@ impl<'a> ChannelQueryLayout<'a> {
         } else if has_condensed {
             Marker::Expand
         } else {
-            Marker::Dot
+            self.system_message_marker()
         };
 
         if !has_condensed {
@@ -190,6 +190,15 @@ impl<'a> ChannelQueryLayout<'a> {
             CondensationIcon::None => Marker::None,
             CondensationIcon::Chevron => marker,
             CondensationIcon::Dot => Marker::Dot,
+        }
+    }
+
+    /// Marker shown on system messages (server, action and internal status),
+    /// controlled by `buffer.server_messages.marker`.
+    fn system_message_marker(&self) -> Marker {
+        match self.config.buffer.server_messages.marker {
+            ServerMessageMarker::Dot => Marker::Dot,
+            ServerMessageMarker::None => Marker::None,
         }
     }
 
@@ -1275,7 +1284,7 @@ impl<'a> LayoutMessage<'a> for ChannelQueryLayout<'a> {
                 });
 
                 let marker = message_marker(
-                    Marker::Dot,
+                    self.system_message_marker(),
                     right_alignment_middle_width,
                     self.config,
                     message_style,
@@ -1337,7 +1346,7 @@ impl<'a> LayoutMessage<'a> for ChannelQueryLayout<'a> {
                 };
 
                 let marker = message_marker(
-                    Marker::Dot,
+                    self.system_message_marker(),
                     right_alignment_middle_width,
                     self.config,
                     message_style,
@@ -1974,7 +1983,7 @@ impl<'a> ChannelQueryLayout<'a> {
 
         let action_marker: Option<Element<_>> = is_action.then(|| {
             message_marker(
-                Marker::Dot,
+                self.system_message_marker(),
                 None,
                 self.config,
                 theme::selectable_text::action,

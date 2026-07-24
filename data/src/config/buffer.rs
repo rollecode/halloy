@@ -449,6 +449,7 @@ impl<'de> Deserialize<'de> for Away {
 #[serde(default)]
 pub struct ServerMessages {
     pub condense: Condensation,
+    pub marker: ServerMessageMarker,
     pub join_topic: ServerMessage,
     pub join: ServerMessage,
     pub part: ServerMessage,
@@ -474,6 +475,7 @@ impl Default for ServerMessages {
     fn default() -> Self {
         Self {
             condense: Condensation::default(),
+            marker: ServerMessageMarker::default(),
             join_topic: ServerMessage {
                 enabled: Some(ServerMessageEnabled::Drop),
                 ..ServerMessage::default()
@@ -723,6 +725,14 @@ pub enum CondensationIcon {
     None,
     Chevron,
     Dot,
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ServerMessageMarker {
+    #[default]
+    Dot,
+    None,
 }
 
 #[derive(Debug, Default, Clone, Deserialize)]

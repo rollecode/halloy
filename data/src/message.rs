@@ -2049,6 +2049,13 @@ fn parse_fragments_with_users_inner(
                             })
                     },
                     |(re_match, text)| {
+                        // skip emoticons like `:D` / `;P` where the letter is a
+                        // real nick but is preceded by an emoticon eye.
+                        if re_match.start() > 0
+                            && text[..re_match.start()].ends_with([':', ';'])
+                        {
+                            return true;
+                        }
                         // attempting to skip matching of abbreviations
                         // skip if preceded by period: `.<match>`
                         if re_match.start() > 0

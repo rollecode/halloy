@@ -28,6 +28,7 @@ Added:
 - Allow image preview on URL click
 - `servers.<name>.max_connection_attempts` setting to control the number of connection of attempts made before autoconnect is automatically disabled (defaults to 10)
 - `logs.file_timestamp` setting to control what timezone is used for timestamps in log files and log file names
+- `buffer.nickname.separator` setting to draw a continuous vertical line between the right-aligned nick column and message content
 - `servers.<name>.irc_protocol_log` settings to enable logging of the IRC protocol messages sent-to / received-from the server
 
 Fixed:

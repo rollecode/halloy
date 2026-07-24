@@ -18,9 +18,9 @@ use data::target::{self, Target};
 use data::{Config, Image, Preview, client, history, metadata, reaction};
 use iced::widget::{
     self, Scrollable, button, column, container, row, rule, scrollable, space,
-    text,
+    stack, text,
 };
-use iced::{Length, Size, Task, padding};
+use iced::{Background, Length, Size, Task, padding};
 use tokio::time;
 
 use self::correct_viewport::correct_viewport;
@@ -31,6 +31,11 @@ use crate::widget::{Element, notify_visibility, on_resize};
 use crate::{Theme, buffer, font, theme};
 
 const SCROLL_TO_TIMEOUT: Duration = Duration::from_millis(200);
+/// Total horizontal gap between the nick column and message content when the
+/// nick separator is enabled; the line sits centered in it with
+/// `NICK_MESSAGE_LINE_MARGIN` on each side.
+pub const NICK_MESSAGE_LINE_MARGIN: f32 = 12.0;
+pub const NICK_MESSAGE_GAP: f32 = NICK_MESSAGE_LINE_MARGIN * 2.0 + 1.0;
 /// Pages of off-screen messages to keep rendered above and below the viewport
 const BUFFER_PAGES: usize = 3;
 
@@ -788,6 +793,38 @@ pub fn view<'a>(
         .spacing(line_spacing),
         Message::ContentResized,
     );
+
+    // Continuous separator line between the right-aligned nick column and the
+    // message content, drawn as a full-height overlay at the column boundary
+    // (centered in NICK_MESSAGE_GAP).
+    let content: Element<_> = if config.buffer.nickname.separator
+        && let Some(widths) = right_alignment_widths
+    {
+        let space_width = font::width_from_str(" ", &config.font);
+        let line_x = widths.prefixes
+            + widths.timestamp
+            + space_width
+            + widths.middle
+            + NICK_MESSAGE_LINE_MARGIN;
+
+        let line = container(space::vertical())
+            .width(1.0)
+            .height(Length::Fill)
+            .style(|theme: &Theme| iced::widget::container::Style {
+                background: Some(Background::Color(
+                    theme.styles().general.horizontal_rule,
+                )),
+                ..iced::widget::container::Style::default()
+            });
+
+        let overlay = container(line)
+            .padding(padding::left(line_x))
+            .height(Length::Fill);
+
+        stack![content, overlay].into()
+    } else {
+        content.into()
+    };
 
     correct_viewport(
         Scrollable::new(container(content).width(Length::Fill).padding([0, 8]))

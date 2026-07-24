@@ -11,6 +11,9 @@ pub struct Nickname {
     pub color: Color,
     pub brackets: Brackets,
     pub alignment: Alignment,
+    /// Draw a continuous vertical separator line between the right-aligned
+    /// nick column and message content (only applies with `alignment = "right"`).
+    pub separator: bool,
     pub show_access_levels: AccessLevelFormat,
     pub show_bot_icon: bool,
     pub shown_status: ShownStatus,
@@ -26,6 +29,7 @@ impl Default for Nickname {
             color: Color::default(),
             brackets: Brackets::default(),
             alignment: Alignment::default(),
+            separator: false,
             show_access_levels: AccessLevelFormat::default(),
             show_bot_icon: true,
             shown_status: ShownStatus::default(),

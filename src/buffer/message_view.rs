@@ -1395,19 +1395,30 @@ impl<'a> LayoutMessage<'a> for ChannelQueryLayout<'a> {
 
         let middle_is_some = middle.is_some();
 
-        let row = row![
-            prefixes,
-            timestamp,
-            if left_is_hidden {
-                let width = font::width_from_str(" ", &self.config.font);
+        let separator_on = self.config.buffer.nickname.separator
+            && self.config.buffer.nickname.alignment.is_right();
 
-                Element::from(Space::new().width(width))
-            } else {
-                Element::from(selectable_text(" "))
-            },
-            middle,
-            middle_is_some.then_some(selectable_text(" ")),
-        ];
+        let spacer = if left_is_hidden {
+            let width = font::width_from_str(" ", &self.config.font);
+
+            Element::from(Space::new().width(width))
+        } else {
+            Element::from(selectable_text(" "))
+        };
+
+        let row = if separator_on {
+            // A trailing gap is added between the row and the content so the
+            // continuous separator line can sit centered in it.
+            row![prefixes, timestamp, spacer, middle]
+        } else {
+            row![
+                prefixes,
+                timestamp,
+                spacer,
+                middle,
+                middle_is_some.then_some(selectable_text(" ")),
+            ]
+        };
 
         let content = if message_has_urls {
             let mut column = column![].spacing(2);
@@ -1478,11 +1489,17 @@ impl<'a> LayoutMessage<'a> for ChannelQueryLayout<'a> {
             column![content].extend(after_content).into()
         };
 
-        let message_element = if self.content_on_new_line(message) {
-            container(column![row, content]).into()
+        let body: Element<_> = if self.content_on_new_line(message) {
+            column![row, content].into()
+        } else if separator_on {
+            row![row, content]
+                .spacing(crate::buffer::scroll_view::NICK_MESSAGE_GAP)
+                .into()
         } else {
-            container(row![row, content]).into()
+            row![row, content].into()
         };
+
+        let message_element = container(body).into();
 
         let message_element = if let Some(reply_row) = self.reply_line(
             message,

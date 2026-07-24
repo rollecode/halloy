@@ -60,6 +60,7 @@ Fixed:
 
 Changed:
 
+- Panes no longer inset their content by a 1px border when the buffer border is fully transparent, so full-width content (e.g. an input top border) reaches the pane edges
 - `change_mode` server messages are categorized as `actions` (i.e. `actions_dimmed` controls whether they are dimmed by default)
 - Renamed `sidebar.server_icon` → `sidebar.primary_icon` and `sidebar.server_font_size` → `sidebar.primary_font_size` since the settings now apply to both servers and internal buffers
 - Renamed `sidebar.unread_indicator.highlight_icon` → `sidebar.highlight_indicator.icon` and `sidebar.unread_indicator.highlight_icon_size` → `sidebar.highlight_indicator.icon_size`

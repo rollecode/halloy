@@ -32,16 +32,21 @@ pub fn typing(theme: &Theme) -> Style {
 pub fn buffer(theme: &Theme, selected: bool) -> Style {
     let buffer = theme.styles().buffer;
 
+    let border_color = if selected {
+        buffer.border_selected
+    } else {
+        buffer.border
+    };
+
     Style {
         background: Some(Background::Color(buffer.background)),
         border: Border {
             radius: 4.0.into(),
-            width: 1.0,
-            color: if selected {
-                buffer.border_selected
-            } else {
-                buffer.border
-            },
+            // A visible border insets pane content by its width; when the
+            // border is transparent, drop the width so content spans edge
+            // to edge (e.g. the input's top rule).
+            width: if border_color.a == 0.0 { 0.0 } else { 1.0 },
+            color: border_color,
         },
         ..Default::default()
     }

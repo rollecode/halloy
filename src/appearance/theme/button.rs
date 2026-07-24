@@ -298,7 +298,7 @@ pub fn preview_card(theme: &Theme, status: Status) -> Style {
     let background_hover = theme.styles().buttons.secondary.background_hover;
 
     let border = Border {
-        radius: 4.0.into(),
+        radius: 5.0.into(),
         width: 1.0,
         color: theme.styles().general.border,
     };

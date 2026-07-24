@@ -27,7 +27,7 @@ pub fn primary(theme: &Theme, status: Status) -> Style {
             // XXX Not currently displayed in application.
         },
         icon: theme.styles().text.primary.color,
-        placeholder: theme.styles().text.secondary.color,
+        placeholder: theme.styles().buffer.timestamp.color,
         value: theme.styles().text.primary.color,
         selection: theme.styles().buffer.selection,
     };

@@ -179,10 +179,7 @@ impl<'a> ChannelQueryLayout<'a> {
         } else if has_condensed {
             Marker::Expand
         } else {
-            match self.config.buffer.server_messages.marker {
-                ServerMessageMarker::Dot => Marker::Dot,
-                ServerMessageMarker::None => Marker::None,
-            }
+            self.system_message_marker()
         };
 
         if !has_condensed {
@@ -193,6 +190,13 @@ impl<'a> ChannelQueryLayout<'a> {
             CondensationIcon::None => Marker::None,
             CondensationIcon::Chevron => marker,
             CondensationIcon::Dot => Marker::Dot,
+        }
+    }
+
+    fn system_message_marker(&self) -> Marker {
+        match self.config.buffer.server_messages.marker {
+            ServerMessageMarker::Dot => Marker::Dot,
+            ServerMessageMarker::None => Marker::None,
         }
     }
 
@@ -1306,7 +1310,7 @@ impl<'a> LayoutMessage<'a> for ChannelQueryLayout<'a> {
                 });
 
                 let marker = message_marker(
-                    Marker::Dot,
+                    self.system_message_marker(),
                     right_alignment_middle_width,
                     self.config,
                     message_style,
@@ -1368,7 +1372,7 @@ impl<'a> LayoutMessage<'a> for ChannelQueryLayout<'a> {
                 };
 
                 let marker = message_marker(
-                    Marker::Dot,
+                    self.system_message_marker(),
                     right_alignment_middle_width,
                     self.config,
                     message_style,
@@ -1435,8 +1439,15 @@ impl<'a> LayoutMessage<'a> for ChannelQueryLayout<'a> {
 
         let trailing_space = middle_is_some.then_some(selectable_text(" "));
 
+        let nick_alignment_right =
+            self.config.buffer.nickname.alignment.is_right();
+
         let row = if timestamp_on_left {
             row![prefixes, timestamp, spacer, middle, trailing_space]
+        } else if nick_alignment_right {
+            // Trailing gap is added between the row and the content so the
+            // continuous separator line can sit centered in it.
+            row![prefixes, spacer, middle]
         } else {
             row![prefixes, spacer, middle, trailing_space]
         };
@@ -1512,15 +1523,22 @@ impl<'a> LayoutMessage<'a> for ChannelQueryLayout<'a> {
 
         let body: Element<_> = if self.content_on_new_line(message) {
             column![row, content].into()
+        } else if nick_alignment_right {
+            row![row, content]
+                .spacing(crate::buffer::scroll_view::NICK_MESSAGE_GAP)
+                .into()
         } else {
             row![row, content].into()
         };
 
         let message_element = if let Some(right_timestamp) = right_timestamp {
+            let gap = font::width_from_str("  ", &self.config.font);
             container(
                 row![container(body).width(Length::Fill), right_timestamp]
+                    .spacing(gap)
                     .align_y(alignment::Vertical::Top),
             )
+            .padding(padding::right(gap))
             .into()
         } else {
             container(body).into()
@@ -2021,7 +2039,7 @@ impl<'a> ChannelQueryLayout<'a> {
 
         let action_marker: Option<Element<_>> = is_action.then(|| {
             message_marker(
-                Marker::Dot,
+                self.system_message_marker(),
                 None,
                 self.config,
                 theme::selectable_text::action,

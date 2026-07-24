@@ -24,7 +24,7 @@ pub fn primary(theme: &Theme, status: Status) -> Style {
             color: Color::TRANSPARENT,
             // XXX Not currently displayed in application.
         },
-        placeholder: theme.styles().text.secondary.color,
+        placeholder: theme.styles().buffer.timestamp.color,
         value: theme.styles().text.primary.color,
         selection: theme.styles().buffer.selection,
     };

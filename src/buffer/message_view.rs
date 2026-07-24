@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use chrono::{DateTime, TimeDelta, Utc};
 use data::buffer::{RightAlignmentWidths, TimestampPosition};
 use data::config::buffer::nickname::ShownStatus;
-use data::config::buffer::{CondensationIcon, Dimmed};
+use data::config::buffer::{CondensationIcon, Dimmed, ServerMessageMarker};
 use data::config::preview::HideUrlCondition;
 use data::isupport::{CaseMap, PrefixMap};
 use data::preview::{self, Previews};
@@ -179,7 +179,10 @@ impl<'a> ChannelQueryLayout<'a> {
         } else if has_condensed {
             Marker::Expand
         } else {
-            Marker::Dot
+            match self.config.buffer.server_messages.marker {
+                ServerMessageMarker::Dot => Marker::Dot,
+                ServerMessageMarker::None => Marker::None,
+            }
         };
 
         if !has_condensed {

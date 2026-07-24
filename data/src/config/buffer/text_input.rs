@@ -7,6 +7,7 @@ use crate::serde::deserialize_usize_positive_integer;
 #[serde(default)]
 pub struct TextInput {
     pub visibility: Visibility,
+    pub border_top: bool,
     pub auto_format: AutoFormat,
     pub autocomplete: Autocomplete,
     pub nickname: Nickname,
@@ -22,6 +23,7 @@ impl Default for TextInput {
     fn default() -> Self {
         Self {
             visibility: Visibility::default(),
+            border_top: false,
             auto_format: AutoFormat::default(),
             autocomplete: Autocomplete::default(),
             nickname: Nickname::default(),

@@ -531,7 +531,13 @@ pub fn view<'a>(
     ]
     .spacing(0);
 
-    let content = column![input_column].spacing(4).padding(padding::top(4));
+    let content = if config.buffer.text_input.border_top {
+        column![rule::horizontal(1), input_column]
+    } else {
+        column![input_column]
+    }
+    .spacing(4)
+    .padding(padding::top(4));
 
     if config.tooltips.show_for_autocomplete() {
         let overlay = || -> Element<'a, Message> {

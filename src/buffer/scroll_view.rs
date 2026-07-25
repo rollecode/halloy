@@ -803,36 +803,7 @@ pub fn view<'a>(
         Message::ContentResized,
     );
 
-    // Single continuous separator line between the right-aligned nick column
-    // and the message content, drawn as a full-height overlay at the column
-    // boundary (centered in NICK_MESSAGE_GAP).
-    let content: Element<_> = if let Some(widths) = right_alignment_widths {
-        let space_width = font::width_from_str(" ", &config.font);
-        let line_x = widths.prefixes
-            + space_width
-            + widths.middle
-            + NICK_MESSAGE_LINE_MARGIN;
-
-        let line = container(space::vertical())
-            .width(1.0)
-            .height(Length::Fill)
-            .style(|theme: &Theme| container::Style {
-                background: Some(Background::Color(
-                    theme.styles().general.horizontal_rule,
-                )),
-                ..container::Style::default()
-            });
-
-        let overlay = container(line)
-            .padding(padding::left(line_x))
-            .height(Length::Fill);
-
-        stack![content, overlay].into()
-    } else {
-        content.into()
-    };
-
-    correct_viewport(
+    let scroll_view = correct_viewport(
         Scrollable::new(container(content).width(Length::Fill).padding([0, 8]))
             .direction(scrollable::Direction::Vertical(
                 scrollable::Scrollbar::default()
@@ -851,7 +822,39 @@ pub fn view<'a>(
             .id(state.scrollable.clone()),
         state.scrollable.clone(),
         matches!(state.status, Status::Unlocked),
-    )
+    );
+
+    // Continuous separator line between the right-aligned nick column and the
+    // message content, drawn as a fixed full-viewport overlay *outside* the
+    // scrollable so it never distorts the measured content size (which would
+    // let the last line slip under the footer). `+ 8.0` accounts for the
+    // scrollable's horizontal padding.
+    if let Some(widths) = right_alignment_widths {
+        let space_width = font::width_from_str(" ", &config.font);
+        let line_x = 8.0
+            + widths.prefixes
+            + space_width
+            + widths.middle
+            + NICK_MESSAGE_LINE_MARGIN;
+
+        let line = container(space::vertical())
+            .width(1.0)
+            .height(Length::Fill)
+            .style(|theme: &Theme| container::Style {
+                background: Some(Background::Color(
+                    theme.styles().general.horizontal_rule,
+                )),
+                ..container::Style::default()
+            });
+
+        let overlay = container(line)
+            .padding(padding::left(line_x))
+            .height(Length::Fill);
+
+        stack![scroll_view, overlay].into()
+    } else {
+        scroll_view
+    }
 }
 
 #[derive(Debug, Clone)]

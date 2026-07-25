@@ -797,8 +797,9 @@ pub fn view<'a>(
             keyed(keyed::Key::Divider, divider),
             column(new).spacing(line_spacing),
             bottom_spacer,
+            space::vertical().height(line_spacing),
         ]
-        .padding(padding::bottom(reserved_bottom_padding + 4.0))
+        .padding(padding::bottom(reserved_bottom_padding))
         .spacing(line_spacing),
         Message::ContentResized,
     );

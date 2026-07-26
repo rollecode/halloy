@@ -42,6 +42,8 @@ pub const NICK_MESSAGE_GAP: f32 = NICK_MESSAGE_LINE_MARGIN * 2.0 + 1.0;
 /// than a multiple of `line_spacing`: tying it to line spacing made the gap
 /// collapse to a few pixels on tight configs.
 const FOOTER_GAP: f32 = 10.0;
+/// Pixel slack for treating the buffer as still pinned to the bottom.
+const BOTTOM_TOLERANCE: f32 = 2.0;
 /// Pages of off-screen messages to keep rendered above and below the viewport
 const BUFFER_PAGES: usize = 3;
 
@@ -940,6 +942,8 @@ impl State {
                 let relative_offset = viewport.relative_offset().y;
                 let absolute_offset = viewport.absolute_offset().y;
                 let height = self.pane_size.height;
+                let scroll_range =
+                    (self.content_size.height - height).max(0.0);
 
                 let mut event = None;
 
@@ -959,7 +963,7 @@ impl State {
                         };
                     }
                     // Hit bottom, anchor it
-                    _ if old_status.is_bottom(relative_offset) => {
+                    _ if old_status.is_bottom(relative_offset, scroll_range) => {
                         if !matches!(self.status, Status::Bottom)
                             && config.buffer.mark_as_read.on_scroll_to_bottom
                         {
@@ -1062,7 +1066,7 @@ impl State {
                     }
                     // Move away from bottom
                     Status::Bottom
-                        if !old_status.is_bottom(relative_offset) =>
+                        if !old_status.is_bottom(relative_offset, scroll_range) =>
                     {
                         self.status = Status::Unlocked;
                         self.limit = Limit::Since(oldest);
@@ -1756,10 +1760,21 @@ impl Status {
         }
     }
 
-    fn is_bottom(self, relative_offset: f32) -> bool {
+    /// `scroll_range` is the scrollable distance in pixels, used to turn
+    /// `BOTTOM_TOLERANCE` into a relative epsilon. Exact float equality here
+    /// dropped the buffer out of `Status::Bottom` on sub-pixel rounding (a new
+    /// multi-line message, fractional line heights), which flipped the anchor
+    /// from `End` to `Start` and left every later message below the footer.
+    fn is_bottom(self, relative_offset: f32, scroll_range: f32) -> bool {
+        let epsilon = if scroll_range > 0.0 {
+            (BOTTOM_TOLERANCE / scroll_range).min(0.05)
+        } else {
+            0.0
+        };
+
         match self.anchor() {
-            scrollable::Anchor::Start => relative_offset == 1.0,
-            scrollable::Anchor::End => relative_offset == 0.0,
+            scrollable::Anchor::Start => relative_offset >= 1.0 - epsilon,
+            scrollable::Anchor::End => relative_offset <= epsilon,
         }
     }
 

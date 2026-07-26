@@ -805,7 +805,6 @@ pub fn view<'a>(
             keyed(keyed::Key::Divider, divider),
             column(new).spacing(line_spacing),
             bottom_spacer,
-            space::vertical().height(FOOTER_GAP),
         ]
         .padding(padding::bottom(reserved_bottom_padding))
         .spacing(line_spacing),
@@ -832,6 +831,16 @@ pub fn view<'a>(
         state.scrollable.clone(),
         matches!(state.status, Status::Unlocked),
     );
+
+    // The gap above the footer is layout, not content: insetting the scrollable
+    // itself keeps it identical whether the buffer is auto-pinned to the bottom
+    // or manually scrolled there. As a trailing spacer inside the content it was
+    // only reachable by scrolling to the very end, so the two states disagreed
+    // by a line. The separator overlay below is stacked outside this inset, so
+    // the nick line still runs the full height down to the footer rule.
+    let scroll_view: Element<'a, Message> = container(scroll_view)
+        .padding(padding::bottom(FOOTER_GAP))
+        .into();
 
     // Continuous separator line between the right-aligned nick column and the
     // message content, drawn as a fixed full-viewport overlay *outside* the

@@ -36,6 +36,12 @@ const SCROLL_TO_TIMEOUT: Duration = Duration::from_millis(200);
 /// it with `NICK_MESSAGE_LINE_MARGIN` on each side.
 pub const NICK_MESSAGE_LINE_MARGIN: f32 = 12.0;
 pub const NICK_MESSAGE_GAP: f32 = NICK_MESSAGE_LINE_MARGIN * 2.0 + 1.0;
+/// Breathing room below the newest message, as a spacer *inside* the scrollable
+/// content so scroll-to-bottom accounts for it and the last line can never end
+/// up against (or under) the footer rule. Deliberately a fixed value rather
+/// than a multiple of `line_spacing`: tying it to line spacing made the gap
+/// collapse to a few pixels on tight configs.
+const FOOTER_GAP: f32 = 10.0;
 /// Pages of off-screen messages to keep rendered above and below the viewport
 const BUFFER_PAGES: usize = 3;
 
@@ -797,7 +803,7 @@ pub fn view<'a>(
             keyed(keyed::Key::Divider, divider),
             column(new).spacing(line_spacing),
             bottom_spacer,
-            space::vertical().height(line_spacing),
+            space::vertical().height(FOOTER_GAP),
         ]
         .padding(padding::bottom(reserved_bottom_padding))
         .spacing(line_spacing),

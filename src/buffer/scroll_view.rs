@@ -41,7 +41,9 @@ pub const NICK_MESSAGE_GAP: f32 = NICK_MESSAGE_LINE_MARGIN * 2.0 + 1.0;
 /// up against (or under) the footer rule. Deliberately a fixed value rather
 /// than a multiple of `line_spacing`: tying it to line spacing made the gap
 /// collapse to a few pixels on tight configs.
-const FOOTER_GAP: f32 = 6.0;
+/// Matches `NICK_MESSAGE_LINE_MARGIN` so the space above the footer rule reads
+/// the same as the space after the vertical nick separator.
+const FOOTER_GAP: f32 = NICK_MESSAGE_LINE_MARGIN;
 /// Pixel slack for treating the buffer as still pinned to the bottom.
 const BOTTOM_TOLERANCE: f32 = 2.0;
 /// Pages of off-screen messages to keep rendered above and below the viewport

@@ -663,26 +663,9 @@ pub fn view<'a>(
         (0, total)
     } else {
         let first_visible = match state.status {
-            Status::Bottom => {
-                let offset = state.last_scroll_offset;
-                let mut acc = 0.0_f32;
-                let mut from_bottom = 0;
-                for m in old_messages.iter().chain(&new_messages).rev() {
-                    if from_bottom == new_messages.len() {
-                        acc += div_height;
-                        if acc > offset {
-                            break;
-                        }
-                    }
-
-                    acc += msg_height(m);
-                    if acc > offset {
-                        break;
-                    }
-                    from_bottom += 1;
-                }
-                total.saturating_sub(from_bottom + visible)
-            }
+            // Anchored at the bottom the tail is rendered in full below, so the
+            // scan back from the bottom is unnecessary here.
+            Status::Bottom => total.saturating_sub(render_budget),
             Status::Unlocked => {
                 let offset = state.last_scroll_offset;
                 let mut acc = 0.0_f32;
@@ -707,7 +690,16 @@ pub fn view<'a>(
 
         (
             first_visible.saturating_sub(buffer),
-            (first_visible + visible + buffer).min(total),
+            match state.status {
+                // The last messages must be real widgets. Ending short of
+                // `total` swaps them for a spacer sized by `msg_height`, which
+                // guesses one row for anything not yet measured, so the space
+                // above the footer tracked that guess instead of the messages.
+                Status::Bottom => total,
+                Status::Unlocked => {
+                    (first_visible + visible + buffer).min(total)
+                }
+            },
         )
     };
 

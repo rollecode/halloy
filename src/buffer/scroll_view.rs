@@ -41,7 +41,7 @@ pub const NICK_MESSAGE_GAP: f32 = NICK_MESSAGE_LINE_MARGIN * 2.0 + 1.0;
 /// up against (or under) the footer rule. Deliberately a fixed value rather
 /// than a multiple of `line_spacing`: tying it to line spacing made the gap
 /// collapse to a few pixels on tight configs.
-const FOOTER_GAP: f32 = 0.0;
+const FOOTER_GAP: f32 = 6.0;
 /// Pixel slack for treating the buffer as still pinned to the bottom.
 const BOTTOM_TOLERANCE: f32 = 2.0;
 /// Pages of off-screen messages to keep rendered above and below the viewport
@@ -759,7 +759,7 @@ pub fn view<'a>(
         }
     };
 
-    let divider = if show_backlog_divider {
+    let divider = show_backlog_divider.then(|| {
         match &config.buffer.backlog_separator.text {
             data::buffer::BacklogText::Hidden => row![
                 container(rule::horizontal(1).style(theme::rule::backlog))
@@ -785,23 +785,45 @@ pub fn view<'a>(
             .padding(2)
             .align_y(iced::Alignment::Center),
         }
-    } else {
-        row![]
-    };
+    });
 
-    let content = on_resize(
-        column![
-            top_row,
-            top_spacer,
-            column(old).spacing(line_spacing),
-            keyed(keyed::Key::Divider, divider),
-            column(new).spacing(line_spacing),
-            bottom_spacer,
-        ]
+    // Built with `push_maybe`/emptiness checks rather than `column![]` so that
+    // absent parts contribute no child at all. A child still takes a
+    // `spacing(line_spacing)` gap even when it renders nothing, and once the
+    // buffer is marked read the divider and the `new` column both empty out,
+    // leaving that spacing stranded at the end as blank space above the footer.
+    let mut content_column = widget::Column::new()
         .padding(padding::bottom(reserved_bottom_padding))
-        .spacing(line_spacing),
-        Message::ContentResized,
-    );
+        .spacing(line_spacing);
+
+    if let Some(top_row) = top_row {
+        content_column = content_column.push(top_row);
+    }
+
+    if let Some(top_spacer) = top_spacer {
+        content_column = content_column.push(top_spacer);
+    }
+
+    if !old.is_empty() {
+        content_column =
+            content_column.push(column(old).spacing(line_spacing));
+    }
+
+    if let Some(divider) = divider {
+        content_column =
+            content_column.push(keyed(keyed::Key::Divider, divider));
+    }
+
+    if !new.is_empty() {
+        content_column =
+            content_column.push(column(new).spacing(line_spacing));
+    }
+
+    if let Some(bottom_spacer) = bottom_spacer {
+        content_column = content_column.push(bottom_spacer);
+    }
+
+    let content = on_resize(content_column, Message::ContentResized);
 
     let scroll_view = correct_viewport(
         Scrollable::new(container(content).width(Length::Fill).padding([0, 8]))

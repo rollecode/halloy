@@ -102,7 +102,8 @@ impl Sidebar {
     pub fn new() -> (Self, Task<Message>) {
         (
             Self {
-                hidden: false,
+                // Start collapsed; ctrl+alt+b toggles it back.
+                hidden: true,
                 reloading_config: false,
                 system_information: None,
             },
